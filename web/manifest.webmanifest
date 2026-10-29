@@ -1,0 +1,139 @@
+{
+  "name": "Readflix",
+  "short_name": "Readflix",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "description": "Readflix: a calm, distraction-free reader for books, PDFs, comics and documents.",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#141414",
+  "theme_color": "#141414",
+  "categories": [
+    "books",
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "share_target": {
+    "action": "./share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [
+        {
+          "name": "books",
+          "accept": [
+            "application/pdf",
+            "application/epub+zip",
+            "application/zip",
+            "application/vnd.comicbook+zip",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text/plain",
+            "text/markdown",
+            "text/html",
+            "application/rtf",
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/gif",
+            ".cbz",
+            ".docx",
+            ".epub",
+            ".gif",
+            ".htm",
+            ".html",
+            ".jpeg",
+            ".jpg",
+            ".markdown",
+            ".md",
+            ".pdf",
+            ".png",
+            ".rtf",
+            ".txt",
+            ".webp",
+            ".zip"
+          ]
+        }
+      ]
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "./",
+      "accept": {
+        "application/pdf": [
+          ".pdf"
+        ],
+        "application/epub+zip": [
+          ".epub"
+        ],
+        "application/zip": [
+          ".zip",
+          ".cbz"
+        ],
+        "application/vnd.comicbook+zip": [
+          ".cbz"
+        ],
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [
+          ".docx"
+        ],
+        "text/plain": [
+          ".txt"
+        ],
+        "text/markdown": [
+          ".md",
+          ".markdown"
+        ],
+        "text/html": [
+          ".html",
+          ".htm"
+        ],
+        "application/rtf": [
+          ".rtf"
+        ],
+        "image/jpeg": [
+          ".jpg",
+          ".jpeg"
+        ],
+        "image/png": [
+          ".png"
+        ],
+        "image/webp": [
+          ".webp"
+        ],
+        "image/gif": [
+          ".gif"
+        ]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  }
+}

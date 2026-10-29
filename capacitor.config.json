@@ -1,0 +1,7 @@
+{
+  "appId": "com.readflix.app",
+  "appName": "Readflix",
+  "webDir": "www",
+  "backgroundColor": "#141414",
+  "android": { "backgroundColor": "#141414", "allowMixedContent": false }
+}

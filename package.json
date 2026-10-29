@@ -1,0 +1,44 @@
+{
+  "name": "readflix",
+  "productName": "Readflix",
+  "version": "1.0.0",
+  "description": "Readflix: a calm, Netflix-style reader for books, PDFs, comics and manga.",
+  "author": "Pranshu",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "desktop": "electron .",
+    "build:windows": "electron-builder --win --publish never",
+    "build:mac": "electron-builder --mac --publish never",
+    "build:linux": "electron-builder --linux --publish never",
+    "android:init": "cap add android && capacitor-assets generate --android && cap sync android",
+    "android:open": "cap open android",
+    "android:apk": "cap sync android && cd android && ./gradlew assembleDebug"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "electron": "^45.1.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "com.readflix.app",
+    "productName": "Readflix",
+    "copyright": "Readflix",
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "www/**/*", "build/icon.png"],
+    "fileAssociations": [
+      { "ext": ["epub", "kepub"], "name": "EPUB book", "role": "Viewer" },
+      { "ext": ["cbz"], "name": "Comic book", "role": "Viewer" },
+      { "ext": ["fb2"], "name": "FictionBook", "role": "Viewer" }
+    ],
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }], "icon": "build/icon.png", "artifactName": "Readflix-${version}-${target}.${ext}" },
+    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "Readflix" },
+    "portable": { "artifactName": "Readflix-${version}-portable.exe" },
+    "mac": { "target": "dmg", "category": "public.app-category.books", "icon": "build/icon.png" },
+    "linux": { "target": "AppImage", "category": "Office", "icon": "build/icon.png" }
+  }
+}
