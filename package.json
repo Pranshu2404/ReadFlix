@@ -28,17 +28,77 @@
     "appId": "com.readflix.app",
     "productName": "Readflix",
     "copyright": "Readflix",
-    "directories": { "output": "release", "buildResources": "build" },
-    "files": ["main.js", "preload.js", "www/**/*", "build/icon.png"],
-    "fileAssociations": [
-      { "ext": ["epub", "kepub"], "name": "EPUB book", "role": "Viewer" },
-      { "ext": ["cbz"], "name": "Comic book", "role": "Viewer" },
-      { "ext": ["fb2"], "name": "FictionBook", "role": "Viewer" }
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "www/**/*",
+      "build/icon.png"
     ],
-    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }], "icon": "build/icon.png" },
-    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "Readflix", "artifactName": "Readflix-${version}-Setup.exe" },
-    "portable": { "artifactName": "Readflix-${version}-portable.exe" },
-    "mac": { "target": "dmg", "category": "public.app-category.books", "icon": "build/icon.png" },
-    "linux": { "target": "AppImage", "category": "Office", "icon": "build/icon.png" }
+    "fileAssociations": [
+      {
+        "ext": [
+          "epub",
+          "kepub"
+        ],
+        "name": "EPUB book",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "cbz"
+        ],
+        "name": "Comic book",
+        "role": "Viewer"
+      },
+      {
+        "ext": [
+          "fb2"
+        ],
+        "name": "FictionBook",
+        "role": "Viewer"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Readflix",
+      "artifactName": "Readflix-${version}-Setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "Readflix-${version}-Portable.${ext}"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.books",
+      "icon": "build/icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office",
+      "icon": "build/icon.png"
+    }
   }
 }

@@ -1,5 +1,5 @@
 /* Stillpage service worker: works offline, and receives files shared from other apps. */
-const VERSION = '52fb3fcdf1';
+const VERSION = 'cfb24a36bd';
 const APP = 'stillpage-app-' + VERSION, LIBS = 'stillpage-libs-v1', SHARE = 'stillpage-share';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon-64.png'];
 const CDN = [

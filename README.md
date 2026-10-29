@@ -1,196 +1,94 @@
-<div align="center">
+# Readflix: website, phone app, Windows app and browser extension
 
-# 📖 Readflix
+Everything in this folder is the same Readflix app, packaged five ways. Everything needed to run is included, so the desktop app, Android app and extension work fully offline.
 
-**A calm, Netflix-style reader for books, PDFs, comics, and manga.**  
-*Everything runs fully offline. Your books, your library, entirely on your device.*
+| Folder | What it is |
+|---|---|
+| `web/` | The website / installable web app (PWA) |
+| `www/` | The app files used by the Windows/Mac/Linux and Android apps |
+| `extension/` | Chrome / Edge / Brave extension |
+| `main.js`, `preload.js` | The Windows/Mac/Linux app shell (Electron) |
+| `capacitor.config.json` | The Android app setup (Capacitor) |
+| `.github/workflows/build.yml` | Builds the .exe and .apk and publishes the website on GitHub, for free |
 
-[![Build Readflix](https://github.com/Pranshu2404/ReadFlix/actions/workflows/build.yml/badge.svg)](https://github.com/Pranshu2404/ReadFlix/actions/workflows/build.yml)
-[![Node.js](https://img.shields.io/badge/Node.js-22%2B-brightgreen?logo=node.js)](https://nodejs.org/)
-[![Platform](https://img.shields.io/badge/Platforms-Windows%20%7C%20Android%20%7C%20Web%20%7C%20Extension-blue)](https://github.com/Pranshu2404/ReadFlix)
-[![License](https://img.shields.io/badge/License-Unlicensed-lightgrey.svg)](#license)
-
-[Features](#-features) • [Downloads](#-downloads--install) • [Supported Formats](#-supported-file-formats) • [Local Development](#-local-development) • [CI/CD](#-automated-cicd) • [Shortcuts](#-keyboard-shortcuts)
-
----
-
-</div>
-
-## ✨ Features
-
-- 🎬 **Netflix-Style Visual Experience**
-  - Cinematic hero carousel showcasing what you're currently reading.
-  - Browse your shelves by cover art or switch to an authentic **Bookshelf Spines** view.
-  - Fluid animations, curated typography, and dark-mode aesthetics designed to reduce eye strain.
-
-- 📚 **Universal Format Compatibility**
-  - Read almost anything: EPUBs, PDFs, comic archives (CBZ), FictionBook (FB2), Word documents (DOCX), plain text, Markdown, and images.
-
-- 🔒 **Private Vault (18+)**
-  - An isolated, PIN-protected shelf for private reading.
-  - Built-in panic lock (`Esc` twice or `Shift+D`) to quickly hide sensitive titles.
-
-- ⚡ **100% Offline & Private**
-  - All books, annotations, and reading progress stay in your browser or local storage.
-  - No accounts required, no telemetry, no cloud dependencies.
-
-- 📱 **One App, Everywhere**
-  - **Desktop:** Native Windows installer & standalone portable executable (also macOS & Linux compatible).
-  - **Mobile:** Android APK built with Capacitor, plus full Progressive Web App (PWA) support for iOS & Android.
-  - **Browser Extension:** One-click instant reader for Chrome, Edge, Brave, and Opera.
+Each version keeps its own shelf on its own device. Books you add in the Windows app do not appear in the Android app.
 
 ---
 
-## 🚀 Downloads & Install
+## Fastest route: let GitHub build everything (no installs on your PC)
 
-Every time code is pushed, GitHub Actions automatically builds the latest binaries:
-
-### 🪟 Windows (.exe)
-1. Head to the **[Actions tab](https://github.com/Pranshu2404/ReadFlix/actions)** and select the latest successful run.
-2. Under **Artifacts**, download **`Readflix-Windows`**.
-3. Extract the ZIP:
-   - **`Readflix-1.0.0-Setup.exe`**: Full installer that registers file associations (`.epub`, `.cbz`, `.fb2`).
-   - **`Readflix-1.0.0-portable.exe`**: Standalone executable that runs instantly without installing.
-
-> **Note on Windows SmartScreen:** The binaries are unsigned open-source builds. If Windows SmartScreen appears, click **More info** → **Run anyway**.
-
----
-
-### 📱 Android (.apk)
-1. Go to the **[Actions tab](https://github.com/Pranshu2404/ReadFlix/actions)** and select the latest run.
-2. Under **Artifacts**, download **`Readflix-Android`** (`Readflix.apk`).
-3. Transfer the `.apk` to your phone and install (allow *Install unknown apps* if prompted).
+1. Create a new repository on github.com (for example `readflix`). Make it **Public** if you want the free website on GitHub Pages; private works for the apps.
+2. Upload the *contents* of this folder: on the repository page click **Add file > Upload files**, then drag everything in, including the `.github` folder. If the browser skips the hidden `.github` folder, use GitHub Desktop or run:
+   ```
+   git init && git add . && git commit -m "Readflix" && git branch -M main
+   git remote add origin https://github.com/YOUR-NAME/readflix.git && git push -u origin main
+   ```
+3. For the website, go to **Settings > Pages > Source** and choose **GitHub Actions**. Do this once.
+4. Open the **Actions** tab. The "Build Readflix" run starts by itself and takes about 5 to 10 minutes. When it turns green, open it and download from **Artifacts**:
+   - **Readflix-Windows**: `Readflix-1.0.0-nsis.exe` (installer) and `Readflix-1.0.0-portable.exe` (runs without installing)
+   - **Readflix-Android**: `Readflix.apk`
+   - The website address is shown on the **website** job: `https://YOUR-NAME.github.io/readflix/`
+5. Each time you push a change, all three are rebuilt. You can also start a build by hand: **Actions > Build Readflix > Run workflow**.
 
 ---
 
-### 🌐 Web App (PWA)
-Readflix can be hosted on GitHub Pages or Netlify:
-- **Live URL:** `https://pranshu2404.github.io/ReadFlix/`
-- **Install on iOS:** Open in Safari → tap **Share** (square with arrow) → **Add to Home Screen**.
-- **Install on Android:** Open in Chrome → tap the menu (⋮) → **Install app**.
-- **Install on Desktop:** Open in Chrome/Edge → click the install icon in the address bar.
+## 1. Website and web app (phones and computers)
 
----
+You can host the `web/` folder in either of two ways:
+- **Netlify Drop (2 minutes):** open https://app.netlify.com/drop and drag the `web` folder onto it. You get a `something.netlify.app` link. Sign up (free) to claim the site and give it a better name.
+- **GitHub Pages:** the workflow above does this for you.
 
-### 🧩 Browser Extension (Chrome, Edge, Brave, Opera)
-1. Clone or download this repository.
-2. Navigate to `chrome://extensions` or `edge://extensions`.
-3. Enable **Developer mode** (top right toggle).
-4. Click **Load unpacked** and select the [`extension/`](extension/) directory.
-5. Pin the extension to your toolbar or press `Alt + Shift + R` to open Readflix anytime.
+To install it from the link:
+- **Android:** open it in Chrome, then use the menu and **Install app**.
+- **iPhone/iPad:** open it in Safari, then tap **Share > Add to Home Screen**.
+- **Windows/Mac:** open it in Chrome or Edge and click the install icon in the address bar.
 
----
+## 2. Windows app (also macOS and Linux)
 
-## 📂 Project Structure
+- **From GitHub:** download the .exe from Artifacts (see above).
+- **On your own PC:** install Node.js 22 or newer, then run these in this folder:
+  ```
+  npm install
+  npm run desktop          # try it
+  npm run build:windows    # makes release/Readflix-1.0.0-nsis.exe and the portable .exe
+  ```
+  For macOS run `npm run build:mac` on a Mac. For Linux run `npm run build:linux`.
 
-```text
-readflix/
-├── assets/                  # High-resolution logos, icons, and graphic assets
-├── build/                   # App icon and build resource files for packaging
-├── extension/               # Chromium browser extension files (Manifest V3)
-├── web/                     # Production web application & PWA files
-├── www/                     # Core application source (HTML, CSS, JS, fonts)
-├── .github/workflows/       # GitHub Actions automated build pipeline
-│   └── build.yml            # Compiles Windows .exe, Android .apk & deploys Pages
-├── capacitor.config.json    # Capacitor configuration for Android builds
-├── main.js                  # Electron main entry point for desktop
-├── package.json             # Scripts, dependencies, and packaging configurations
-└── preload.js               # Secure IPC bridge for Electron
-```
+The installer is not code-signed, so Windows SmartScreen will say "Windows protected your PC". Click **More info**, then **Run anyway**. Removing this warning for everyone needs a code-signing certificate, or publishing through the Microsoft Store (below).
 
----
+The installer lets you open EPUB, CBZ and FB2 files from Explorer with Readflix. Right-click a file and choose **Open with > Readflix**.
 
-## 📑 Supported File Formats
+## 3. Android app
 
-| Format | Extension(s) | Description |
-|:---|:---|:---|
-| **EPUB Books** | `.epub`, `.kepub` | Standard electronic publications with reflowable text |
-| **PDF Documents** | `.pdf` | Fixed-layout portable documents |
-| **Comics & Manga** | `.cbz`, `.zip` | Comic book archive files containing image sequences |
-| **FictionBook** | `.fb2` | XML-based e-book format popular worldwide |
-| **Office Documents** | `.docx`, `.rtf` | Microsoft Word and Rich Text documents |
-| **Plain Text / Notes** | `.txt`, `.md`, `.markdown` | Plain text and Markdown documents |
-| **Web Documents** | `.html`, `.htm`, `.xhtml` | Hypertext files and saved articles |
-| **Images** | `.jpg`, `.png`, `.webp`, `.avif`, `.gif` | Standalone artwork, spreads, and graphics |
+- **From GitHub:** download `Readflix.apk` from Artifacts. Send it to your phone, open it, and allow **Install unknown apps** when Android asks.
+- **On your own PC** (needs Android Studio):
+  ```
+  npm install
+  npm run android:init     # creates the android/ project with the Readflix icon
+  npm run android:open     # opens Android Studio: Build > Build APK(s)
+  ```
 
----
+This APK is a *debug* build, which is fine for your own phones. For the Play Store you need a *signed release bundle*: in Android Studio choose **Build > Generate Signed App Bundle**, and keep the keystore file safe forever.
 
-## 🛠️ Local Development
+## 4. Browser extension (Chrome, Edge, Brave, Opera)
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (version `22.0.0` or higher recommended)
-- `npm` (bundled with Node.js)
+1. Open `chrome://extensions` (or `edge://extensions`).
+2. Turn on **Developer mode**.
+3. Click **Load unpacked** and pick the `extension` folder.
+4. Pin Readflix. The toolbar button (or Alt+Shift+R) opens it in a tab.
 
-### 1. Installation
-```bash
-git clone https://github.com/Pranshu2404/ReadFlix.git
-cd ReadFlix
-npm install
-```
+## 5. Putting it in the stores
 
-### 2. Run the Desktop App
-```bash
-npm run desktop
-```
+| Store | Cost | What to upload |
+|---|---|---|
+| Google Play | $25 one time. New personal accounts must run a closed test with at least 12 testers for 14 days before going public | Signed `.aab` from Android Studio. Alternative: give your website link to https://www.pwabuilder.com and download its Android package |
+| Microsoft Store | Free for individual developers (ID and selfie check) | Give your website link to https://www.pwabuilder.com and download the Windows package, or submit the installer |
+| Chrome Web Store | $5 one time | Zip the *contents* of `extension/` |
+| Microsoft Edge Add-ons | Free | Same zip |
+| Apple App Store | $99 per year and a Mac | Out of scope here. iPhone users can use the website with Add to Home Screen |
 
-### 3. Build Desktop Installers
-```bash
-# Build for Windows (.exe installer and portable)
-npm run build:windows
+Before you publish, check that the name "Readflix" is free to use where you will sell it. It is close to "Netflix", so a trademark check is worth doing.
 
-# Build for macOS (.dmg)
-npm run build:mac
+## Updating later
 
-# Build for Linux (.AppImage)
-npm run build:linux
-```
-Packaged binaries will be saved inside the `release/` directory.
-
-### 4. Build Android App
-```bash
-# Initialize Android project and sync assets
-npm run android:init
-
-# Open project in Android Studio to build APK or signed AAB
-npm run android:open
-```
-
----
-
-## ⚙️ Automated CI/CD
-
-The repository includes a GitHub Actions workflow in [`.github/workflows/build.yml`](.github/workflows/build.yml) that triggers on every push to `main`:
-
-- **Windows app (`.exe`)**: Builds NSIS installer and portable executables.
-- **Android app (`.apk`)**: Compiles `Readflix.apk` via Gradle.
-- **Website (GitHub Pages)**: Deploys the static PWA to GitHub Pages.
-
-> [!TIP]
-> **Enabling GitHub Pages Deployment:**  
-> On your GitHub repository, navigate to **Settings** → **Pages** → **Build and deployment** → set **Source** to **"GitHub Actions"**.
-
----
-
-## ⌨️ Keyboard Shortcuts
-
-| Shortcut | Action |
-|:---|:---|
-| `Alt + Shift + R` | Open Readflix (Browser Extension) |
-| `Esc` *(twice)* | Instant Lock / Panic Button (Private Vault) |
-| `Shift + D` | Toggle Private Vault (18+) |
-| `←` / `→` | Previous / Next page |
-| `Space` / `Shift + Space` | Scroll down / Scroll up |
-| `/` | Focus search bar |
-
----
-
-## 👤 Author
-
-**Pranshu**
-- GitHub: [@Pranshu2404](https://github.com/Pranshu2404)
-
----
-
-## 📄 License
-
-This project is currently unlicensed for proprietary use. See repository files for details.
+Rebuild Readflix, then replace `www/`, `web/` and `extension/` with the new versions and push to GitHub. Raise `"version"` in `package.json` (and in `extension/manifest.json` for the stores) each time you publish.

@@ -1949,6 +1949,17 @@ body.sheet-open{ overflow:hidden }
 #reader.k-images #botbar small, #reader.k-images #botbar .muted, #reader.k-images #topbar small{ color:#A8A8A8 !important }
 #reader.k-images #magCorner, #reader.k-images #sndw{ background:rgba(20,19,24,.8) !important; color:#F2F2F2 !important; border-color:rgba(255,255,255,.12) !important }
 
+/* video chooser sheet */
+.as-cv.as-vid{ background:#E50914; color:#fff }
+.as-cv.as-vid svg.i{ width:26px; height:26px }
+.as-th{ flex:none; width:34px; height:48px; border-radius:3px; overflow:hidden; background:var(--tint,#333); box-shadow:0 0 0 1px rgba(255,255,255,.1) }
+.as-th img{ width:100%; height:100%; object-fit:cover }
+.as-bk{ min-width:0; display:flex; flex-direction:column; gap:2px }
+.as-bk b{ font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.as-bk small{ font-size:12px; color:#9A9A9A; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.as-list button:has(.as-th){ min-height:64px; gap:14px }
+.act-sheet .as-list{ max-height:min(56vh, 520px); overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y }
+
 </style>
 </head>
 <body>
@@ -1967,7 +1978,7 @@ body.sheet-open{ overflow:hidden }
       <button class="btn quiet" id="adLock" data-act="vaultLock" type="button" hidden title="Lock (Esc twice)" aria-label="Lock Private"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Lock</button>
       <button class="btn quiet" data-act="pastePanel" type="button" title="Paste text" aria-label="Paste text"><svg class="i" viewBox="0 0 24 24"><path d="M9 4h6v3H9zM8 5H6v16h12V5h-2"/><path d="M9 12h6M9 16h4"/></svg>Paste text</button>
       <label class="btn primary" for="fileInput" tabindex="0" id="openLabel"><svg class="i" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>Open books</label>
-      <input type="file" id="fileInput" multiple hidden accept=".epub,.kepub,.pdf,.docx,.txt,.text,.md,.markdown,.mdown,.html,.htm,.xhtml,.fb2,.cbz,.zip,.rtf,.jpg,.jpeg,.png,.gif,.webp,.avif,.bmp,application/epub+zip,application/pdf,application/zip,application/x-zip-compressed,text/plain,text/markdown,text/html,image/*">
+      <input type="file" id="fileInput" multiple hidden accept=".epub,.kepub,.pdf,.docx,.txt,.text,.md,.markdown,.mdown,.html,.htm,.xhtml,.fb2,.cbz,.zip,.rtf,.jpg,.jpeg,.png,.gif,.webp,.avif,.bmp,application/epub+zip,application/pdf,application/zip,application/x-zip-compressed,text/plain,text/markdown,text/html,image/*,video/*,.mp4,.m4v,.webm,.mov,.mkv">
     </div>
   </header>
   <div class="main">
@@ -3012,6 +3023,18 @@ async function parseZip(buf, opts = {}) {
   return flowDoc({ title: one && !e.img.length && docs.size === 1 ? one.title : title, author: one ? one.author : '', lang: one ? one.lang : '', chapters, toc, res, cleanup });
 }
 /* Loose pictures picked together become one picture book, kept as a comic archive. */
+/* Videos are recognised by type, by name, or by their first bytes (Android sometimes hands over files with no name ending) */
+const VIDEO_EXT = /\.(mp4|m4v|webm|mov|mkv|ogv|3gp|avi)$/i;
+async function isVideoFile(f) {
+  if (!f) return false;
+  if (/^video\//.test(f.type) || VIDEO_EXT.test(f.name || '')) return true;
+  if (/^(image|text)\//.test(f.type) || /\.(epub|kepub|pdf|docx|txt|md|html?|fb2|cbz|zip|rtf|jpe?g|png|gif|webp)$/i.test(f.name || '')) return false;
+  try {
+    const h = new Uint8Array(await f.slice(0, 12).arrayBuffer());
+    const s4 = String.fromCharCode(h[4], h[5], h[6], h[7]), s0 = String.fromCharCode(h[0], h[1], h[2], h[3]), s8 = String.fromCharCode(h[8], h[9], h[10], h[11]);
+    return s4 === 'ftyp' || (h[0] === 0x1A && h[1] === 0x45 && h[2] === 0xDF && h[3] === 0xA3) || (s0 === 'RIFF' && s8 === 'AVI ') || s0 === 'OggS';
+  } catch (e) { return false; }
+}
 const isImageFile = f => /^image\/(jpeg|png|gif|webp|avif|bmp)$/.test(f.type) || ZIP_IMG.test(f.name || '');
 async function imagesToCbz(files) {
   const JSZip = await loadLib('jszip');
@@ -3540,6 +3563,28 @@ function placePop(pop) {
   if (y + h > vh - 8) y = Math.max(8, r.top - h - 6);
   pop.style.left = x + 'px'; pop.style.top = y + 'px';
 }
+function showSheet(headHtml, itemsHtml, id, label) {
+  closeCardMenus();
+  const scrim = document.createElement('div'); scrim.className = 'act-scrim'; scrim.addEventListener('click', () => closeCardMenus());
+  const pop = document.createElement('div'); pop.className = 'card-pop act-sheet'; pop.dataset.id = id || '';
+  pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', label || 'Options');
+  pop.innerHTML = `<i class="as-grab" aria-hidden="true"></i><div class="as-head">${headHtml}</div><div class="as-list">${itemsHtml}</div><button class="as-cancel" type="button" data-act="closeMenus">Cancel</button>`;
+  document.body.append(scrim, pop); document.body.classList.add('sheet-open');
+  requestAnimationFrame(() => { scrim.classList.add('in'); pop.classList.add('in'); });
+  sheetDrag(pop);
+  if (typeof OV !== 'undefined') OV.open('sheet');
+  return pop;
+}
+let pendingVideo = null;
+function chooseBookForVideo(file) {
+  const list = shelfBooks().filter(b => b.format !== 'sample' || shelfBooks().length === 1).sort((a, b) => (b.opened || b.added || 0) - (a.opened || a.added || 0)).slice(0, 8);
+  if (!list.length) { toast('Add the book or comic first, then add the video to watch them side by side.', 5200); return; }
+  pendingVideo = file;
+  const thumb = b => { const u = coverURL(b) && !(b.private && S.vaultBlur) ? coverURL(b) : null; return `<span class="as-th" style="--tint:${bookTint(b)}">${u ? `<img src="${u}" alt="">` : ''}</span>`; };
+  showSheet(`<span class="as-cv as-vid">${IC_WATCH}</span><div class="as-tx"><b>Watch with which book?</b><small>${esc(file.name || 'Video')}</small></div>`,
+    list.map(b => `<button data-act="videoPair" data-id="${esc(b.id)}">${thumb(b)}<span class="as-bk"><b>${esc(b.title)}</b><small>${esc([b.author, fmtLabel(b.format)].filter(Boolean).join(' · '))}</small></span></button>`).join(''),
+    '', 'Choose a book for this video');
+}
 /* drag the sheet down to dismiss it */
 function sheetDrag(sh) {
   let y0 = null, dy = 0;
@@ -3583,6 +3628,14 @@ let importing = false;
 async function importFiles(fileList, { openAfter = true } = {}) {
   let files = Array.from(fileList || []).filter(f => f && f.size !== undefined);
   if (!files.length) return;
+  /* a video added from Add plays beside a book: with the open book, or with one the reader picks */
+  const vids = [];
+  for (const f of files) if (await isVideoFile(f)) vids.push(f);
+  if (vids.length) {
+    files = files.filter(f => !vids.includes(f));
+    if (!files.length) { if (R.open && R.doc) Watch.load(vids[0]); else chooseBookForVideo(vids[0]); return; }
+    setTimeout(() => chooseBookForVideo(vids[0]), 400);
+  }
   if (importing) { toast('Still adding the last files. Try again in a moment.'); return; }
   importing = true;
   let lastId = null, firstNew = null, added = 0, fromZip = 0; const errors = [];
@@ -6476,9 +6529,9 @@ const Watch = {
     if (!quiet) setTimeout(() => window.dispatchEvent(new Event('resize')), 30);
   },
   unload() { this.close(true); try { this.v.removeAttribute('src'); this.v.load(); } catch (e) { /* none */ } if (this.url) URL.revokeObjectURL(this.url); this.url = null; this.file = null; this.lastKey = null; },
-  load(file) {
+  async load(file) {
     if (!file) return;
-    if (!/^video\//.test(file.type) && !/\.(mp4|m4v|webm|mov|mkv|ogv|3gp)$/i.test(file.name)) { toast('Choose a video file, such as MP4 or WebM.'); return; }
+    if (!(await isVideoFile(file))) { toast('Choose a video file, such as MP4 or WebM.'); return; }
     if (this.url) URL.revokeObjectURL(this.url);
     this.file = file; this.url = URL.createObjectURL(file);
     const v = this.v; v.src = this.url; v.playbackRate = S.vidRate || 1; v.muted = !!S.vidMuted;
@@ -7152,7 +7205,8 @@ const ACT = {
     openBook(id);
   },
   cardMenu: t => openCardMenu(t.dataset.id, t),
-  closeMenus: () => closeCardMenus(),
+  closeMenus: () => { pendingVideo = null; closeCardMenus(); },
+  videoPair: async t => { const f = pendingVideo; pendingVideo = null; closeCardMenus(); if (!f) return; await openBook(t.dataset.id); if (R.open && R.meta && R.meta.id === t.dataset.id) Watch.load(f); },
   peek: t => { closeCardMenus(); Peek.open(t.dataset.id || (t.closest('.card-pop') && t.closest('.card-pop').dataset.id)); },
   peekClose: () => Peek.close(),
   navSearch: () => { setS('libTab', 'library'); setTimeout(() => { const i = $('#shelfSearch'); if (i) { i.closest('.search').hidden = false; i.focus(); } }, 60); },
@@ -7576,6 +7630,7 @@ setInterval(() => {
   if (S.sound !== 'off') { S.sound = 'off'; saveSettings(); }
   window.Stillpage = { importFiles: (files, o) => importFiles(files, o), openBook: id => openBook(id), toast: (m, ms) => toast(m, ms) };
   window.dispatchEvent(new Event('stillpage:ready'));
+if (/Android/i.test(navigator.userAgent)) ['#fileInput', '#videoInput', '#soundInput'].forEach(q => { const n = $(q); if (n) n.removeAttribute('accept'); });
 /* Hidden way into Private: press and hold the Readflix logo for about half a second */
 (function () {
   let t = null, sx = 0, sy = 0, fired = false;
