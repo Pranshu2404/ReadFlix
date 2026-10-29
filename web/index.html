@@ -1773,6 +1773,182 @@ body.reading .lib.cine .topnav, body.reading .lib.cine .tabbar{ display:none }
 body.no-hero .lib.cine #viewHome{ padding-top:calc(96px + env(safe-area-inset-top,0px)) }
 @media (max-width:640px){ body.no-hero .lib.cine #viewHome{ padding-top:calc(78px + env(safe-area-inset-top,0px)) } }
 
+/* ================= Book menus: always on screen ================= */
+.card-pop.floating{ position:fixed !important; right:auto !important; bottom:auto !important; transform:none !important; z-index:300; min-width:220px; background:#181818 !important; color:#fff; border:1px solid #333 !important; border-radius:10px !important; box-shadow:0 18px 40px rgba(0,0,0,.6) !important }
+.card-pop.floating button{ color:#E5E5E5; border-radius:6px }
+.card-pop.floating button:hover{ background:#2a2a2a }
+.card-pop.floating .danger{ color:#FF6B6B }
+.cv-meta{ display:flex; align-items:flex-start; gap:4px }
+.cv-tx{ flex:1; min-width:0 }
+.cv-tx .cv-t, .cv-tx .cv-s{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.cv-more{ display:none }
+
+/* Action sheet (phones) */
+.act-scrim{ position:fixed; inset:0; z-index:400; background:rgba(0,0,0,.6); opacity:0; transition:opacity .22s ease; touch-action:none }
+.act-scrim.in{ opacity:1 } .act-scrim.out{ opacity:0; pointer-events:none }
+.act-sheet, .card-pop.act-sheet{ top:auto !important; min-width:0 !important; padding:0 !important; background:none !important; border:0 !important; box-shadow:none !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important; border-radius:0 !important; animation:none !important }
+.act-sheet{ position:fixed; z-index:401; left:8px; right:8px; bottom:calc(8px + env(safe-area-inset-bottom,0px)); max-width:520px; margin:0 auto; display:flex; flex-direction:column; gap:8px; color:#fff; font-family:var(--f-sys, system-ui); transform:translateY(110%); transition:transform .28s cubic-bezier(.2,.9,.25,1); touch-action:none; -webkit-user-select:none; user-select:none }
+.act-sheet.in{ transform:none } .act-sheet.out{ transform:translateY(110%); pointer-events:none }
+.act-sheet > .as-grab{ position:absolute; top:7px; left:50%; width:38px; height:4px; margin-left:-19px; border-radius:4px; background:rgba(255,255,255,.28); z-index:2 }
+.as-head{ display:flex; align-items:center; gap:14px; padding:22px 16px 14px; background:#232323; border-radius:16px 16px 0 0; margin-bottom:-8px; border-bottom:1px solid #333 }
+.as-cv{ flex:none; width:46px; height:66px; border-radius:4px; overflow:hidden; background:var(--tint,#333); display:grid; place-items:center; box-shadow:0 0 0 1px rgba(255,255,255,.12) }
+.as-cv img{ width:100%; height:100%; object-fit:cover }
+.as-cv b{ font:400 30px/1 var(--f-logo, Impact); color:rgba(255,255,255,.85) }
+.as-tx{ min-width:0 }
+.as-tx b{ display:block; font-size:16px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.as-tx small{ display:block; margin-top:3px; font-size:13px; color:#A3A3A3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.as-list{ display:flex; flex-direction:column; background:#232323; border-radius:0 0 16px 16px; overflow:hidden }
+.as-list button, .as-cancel{ display:flex; align-items:center; gap:16px; min-height:54px; padding:0 18px; font-size:16px; font-weight:500; color:#EDEDED; text-align:left; background:none; border:0; -webkit-tap-highlight-color:transparent }
+.as-list button + button{ border-top:1px solid #2f2f2f }
+.as-list button svg.i{ width:22px; height:22px; flex:none; color:#BDBDBD }
+.as-list button:active, .as-cancel:active{ background:#303030 }
+.as-list .danger, .as-list .danger svg.i{ color:#FF5A5F }
+.as-list .danger.armed{ background:rgba(229,9,20,.16) }
+.as-cancel{ justify-content:center; font-weight:700; background:#232323; border-radius:16px }
+body.sheet-open{ overflow:hidden }
+
+/* ================= Phone app shell ================= */
+@media (max-width:760px){
+  html, body{ overscroll-behavior:none }
+  .lib.cine, .lib.cine button, .lib.cine label, .lib.cine .cv{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none }
+  .lib.cine img{ -webkit-user-drag:none; -webkit-touch-callout:none }
+  .lib.cine input{ -webkit-user-select:text; user-select:text }
+
+  /* top bar: compact, like a native app header */
+  .lib.cine .topnav{ position:fixed; top:0; left:0; right:0; height:calc(54px + env(safe-area-inset-top,0px)); padding:env(safe-area-inset-top,0px) 12px 0 16px; box-sizing:border-box; gap:8px; z-index:40; background:linear-gradient(180deg, rgba(0,0,0,.75), rgba(0,0,0,0)) }
+  body.scrolled .lib.cine .topnav, body.tab-lib .lib.cine .topnav, body.no-hero .lib.cine .topnav{ background:rgba(20,20,20,.94) !important; -webkit-backdrop-filter:blur(14px) !important; backdrop-filter:blur(14px) !important; box-shadow:0 1px 0 rgba(255,255,255,.06) !important }
+  .lib.cine .wordmark{ font-size:27px !important; letter-spacing:.03em }
+  .lib.cine .wordmark[data-tag]:not([data-tag=""])::after{ font-size:10px; padding:2px 6px 1px; margin-left:8px }
+  .lib.cine .topnav .tabs{ display:none }
+  .lib.cine .lib-actions{ gap:0 }
+  .lib.cine .lib-actions .btn.quiet{ width:42px !important; height:42px !important; border-radius:50% }
+  .lib.cine .lib-actions .btn.quiet svg.i{ width:22px; height:22px }
+  .lib.cine .lib-actions [data-act="pastePanel"]{ display:none !important }
+  .lib.cine .lib-actions .btn.quiet:active{ background:rgba(255,255,255,.12) !important }
+
+  /* bottom tab bar: full width, safe-area aware */
+  .lib.cine .tabbar{ display:flex !important; position:fixed; left:0 !important; right:0; bottom:0 !important; transform:none !important; width:auto; height:calc(58px + env(safe-area-inset-bottom,0px)); padding:0 6px env(safe-area-inset-bottom,0px) !important; box-sizing:border-box; gap:0; justify-content:space-around; align-items:stretch; border-radius:0 !important; background:rgba(18,18,18,.97) !important; -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border:0 !important; border-top:1px solid #262626 !important; box-shadow:none !important; z-index:45 }
+  .lib.cine .tab{ flex:1; width:auto !important; height:auto !important; border-radius:0 !important; gap:3px; font-size:10.5px; font-weight:600; letter-spacing:.01em; color:#8C8C8C !important; background:none !important; -webkit-tap-highlight-color:transparent }
+  .lib.cine .tab svg.i{ width:24px; height:24px }
+  .lib.cine .tab[aria-pressed="true"]{ color:#fff !important }
+  .lib.cine .tab:active{ opacity:.55 }
+  .lib.cine .tab.add i{ width:auto !important; height:auto !important; background:none !important; box-shadow:none !important; color:inherit !important; display:block }
+  .lib.cine .tab.add svg.i{ width:24px !important; height:24px !important; padding:1px; border-radius:7px; box-shadow:inset 0 0 0 1.8px currentColor }
+  .lib.cine .main{ padding-bottom:calc(84px + env(safe-area-inset-bottom,0px)) !important }
+
+  /* billboard */
+  .lib.cine .hx{ padding-top:calc(58px + env(safe-area-inset-top,0px)) !important }
+  .lib.cine .hx-art{ display:none !important }
+  .lib.cine .hx-poster{ width:auto !important; margin:0 16px !important; max-height:62vh; border-radius:10px }
+  .lib.cine .hx-in{ left:32px !important; right:32px !important; bottom:20px !important }
+  .lib.cine .hx-title{ font-size:clamp(34px, 11vw, 52px) !important }
+  .lib.cine .hbtn{ height:42px !important; min-height:0; font-size:15px !important; border-radius:6px !important; padding:0 12px !important }
+  .lib.cine .hbtn:active{ transform:scale(.97) }
+  .lib.cine .hero-more{ width:42px !important; height:42px !important }
+
+  /* stats: one swipeable line of tiles */
+  .lib.cine #today{ display:flex !important; flex-wrap:nowrap !important; overflow-x:auto; gap:8px !important; margin:16px 0 22px !important; padding:0 16px !important; scrollbar-width:none; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity }
+  .lib.cine #today::-webkit-scrollbar{ display:none }
+  .lib.cine #today .st-i{ flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:10px 14px !important; border:0 !important; border-radius:10px; background:#202020; scroll-snap-align:start }
+  .lib.cine #today .st-i b{ font-size:14px } .lib.cine #today .st-i small{ font-size:11.5px }
+
+  /* rows */
+  .lib.cine .cr{ margin-bottom:22px }
+  .lib.cine .cr-h{ padding:0 16px !important; margin-bottom:8px !important }
+  .lib.cine .cr-h h2{ font-size:17px !important }
+  .lib.cine .cr-s{ padding-left:16px !important; padding-right:16px !important; scroll-padding:0 16px !important; grid-auto-columns:calc((100vw - 32px - 2 * 8px) / 3.15) !important; gap:8px !important; -webkit-overflow-scrolling:touch }
+  .lib.cine .cr.top .cr-s{ grid-auto-columns:calc((100vw - 32px) / 2.3) !important }
+  .lib.cine .cv-hover{ display:none !important }
+  .lib.cine .cv .card-menu{ display:none !important }
+  .lib.cine .cv.ranked .card-menu{ display:grid !important; width:28px; height:28px; top:6px; right:6px }
+  .lib.cine .cv-more{ display:grid; place-items:center; flex:none; width:28px; height:28px; margin:4px -6px 0 0; border-radius:50%; color:#A3A3A3; background:none; border:0 }
+  .lib.cine .cv-more svg.i{ width:18px; height:18px }
+  .lib.cine .cv-more:active{ background:rgba(255,255,255,.12) }
+  .lib.cine .cv-t{ font-size:12.5px !important; margin-top:6px !important }
+  .lib.cine .cv-s{ font-size:11.5px !important }
+  .lib.cine .cv-open{ transition:transform .15s ease }
+  .lib.cine .cv-open:active{ transform:scale(.96) }
+  .lib.cine .formats{ padding:0 16px; font-size:12px; color:#6E6E6E }
+
+  /* library page */
+  .lib.cine #viewLib{ padding-top:calc(62px + env(safe-area-inset-top,0px)) !important }
+  .lib.cine #viewLib .page-head{ padding:0 16px !important; margin-bottom:12px !important; gap:12px }
+  .lib.cine #viewLib h1{ font-size:28px !important }
+  .lib.cine #viewLib .eyebrow{ font-size:12px }
+  .lib.cine #viewLib .search{ height:44px !important; border-radius:10px !important; background:#262626 !important; border:0 !important; box-shadow:none !important; padding:0 14px !important }
+  .lib.cine #viewLib .search input{ font-size:16px !important }
+  .lib.cine #viewLib .toolbar{ display:flex; flex-direction:column; align-items:stretch; gap:10px; padding:0 !important; margin-bottom:14px }
+  .lib.cine #filterChips{ display:flex; flex-wrap:nowrap !important; overflow-x:auto; gap:8px; padding:0 16px; scrollbar-width:none }
+  .lib.cine #filterChips::-webkit-scrollbar{ display:none }
+  .lib.cine #filterChips .chip{ flex:0 0 auto; height:34px; padding:0 14px; font-size:13.5px; border-radius:999px }
+  .lib.cine #viewLib .tool-r{ display:flex; justify-content:space-between; gap:8px; padding:0 16px }
+  .lib.cine #viewLib .seg{ height:36px }
+  .lib.cine #viewLib .seg button{ font-size:13px; padding:0 12px }
+  .lib.cine .bookcase{ padding:0 16px !important }
+  .lib.cine .bookcase.covers{ grid-template-columns:repeat(3, minmax(0,1fr)) !important; gap:18px 10px !important }
+  .lib.cine .bookcase .card-peek{ display:none !important }
+  .lib.cine .bookcase .cv-fmt{ font-size:9.5px; padding:2px 6px; top:6px; left:6px }
+
+  /* preview sheet */
+  .peek-sheet{ padding:16px 16px calc(22px + env(safe-area-inset-bottom,0px)) !important; border-radius:18px 18px 0 0 !important }
+  .peek-sheet::before{ content:""; display:block; width:38px; height:4px; margin:0 auto 12px; border-radius:4px; background:rgba(255,255,255,.25) }
+  .pk-top{ grid-template-columns:92px minmax(0,1fr) !important; gap:6px 16px !important; align-items:start !important; padding-bottom:14px !important }
+  .pk-cover{ padding:2px 4px 6px 6px !important }
+  .pk-info h2{ font-size:21px !important; line-height:1.2 }
+  .pk-info .author{ font-size:14px !important; margin:2px 0 6px !important }
+  .pk-facts span{ font-size:11px !important; padding:3px 8px !important }
+  .pk-prog{ margin-top:8px }
+  .pk-top > .pk-actions{ grid-column:1 / -1 !important; display:flex !important; flex-wrap:nowrap !important; gap:8px !important; margin-top:6px !important }
+  .pk-top > .pk-actions .btn{ flex:1; height:44px !important; min-height:0; padding:0 10px !important; font-size:15px !important; justify-content:center; border-radius:6px !important; white-space:nowrap }
+  .pk-top > .pk-actions .pk-rm{ flex:0 0 auto }
+  .pk-x{ top:12px !important; right:12px !important; width:34px !important; height:34px !important }
+
+}
+@media (min-width:761px){
+  .pk-top > .pk-actions{ grid-column:2; margin-top:-12px }
+  .pk-top > .pk-cover{ grid-row:1 / span 2 }
+}
+/* touch screens never show hover-only effects */
+@media (hover:none){
+  .lib.cine .cv:hover .cv-open, .lib.cine .cv:hover .bk, .lib.cine .rc:hover{ transform:none !important }
+  .lib.cine .cv-hover{ display:none !important }
+}
+
+/* ================= Phone reader ================= */
+@media (max-width:760px){
+  /* floating buttons get out of the way when the controls hide */
+  #reader.chrome-off #sndw:not(.on), #reader.deep #sndw:not(.on){ opacity:0; pointer-events:none }
+  #reader.chrome-off #magCorner:not([aria-pressed="true"]), #reader.deep #magCorner:not([aria-pressed="true"]){ opacity:0; pointer-events:none }
+  #sndw, #magCorner{ transition:opacity .25s ease, bottom .32s ease }
+  #reader #topbar .ib:active, #reader #botbar .ib:active{ transform:scale(.92) }
+}
+@media (max-width:760px){
+  body.reading .lib.cine .tabbar, body.reading .lib.cine .topnav{ display:none !important }
+  .lib.cine .hx-poster{ width:calc(100vw - 32px) !important; max-width:none !important; height:auto !important; max-height:none !important; aspect-ratio:3/4 !important; margin:0 auto !important }
+  .lib.cine .hx{ padding-left:0 !important; padding-right:0 !important }
+  .lib.cine .hx-in{ left:28px !important; right:28px !important; bottom:18px !important }
+  .lib.cine .hbtn{ gap:6px !important; font-size:14.5px !important; padding:0 8px !important; white-space:nowrap }
+  .lib.cine .hbtn svg.i{ width:18px !important; height:18px !important }
+  .lib.cine #today{ scroll-padding:0 16px }
+  .lib.cine #viewLib{ padding-left:0 !important; padding-right:0 !important }
+  .lib.cine #viewLib .tool-r{ overflow-x:auto; scrollbar-width:none }
+  .lib.cine #viewLib .tool-r::-webkit-scrollbar{ display:none }
+  .lib.cine #viewLib .seg{ flex:none }
+  .lib.cine #viewLib .seg button{ padding:0 11px !important }
+  .lib.cine #viewLib .seg.icons button{ width:40px !important; padding:0 !important }
+  .lib.cine .tab.add i{ height:24px; line-height:0 }
+  .lib.cine .tab.add svg.i{ display:block }
+}
+@media (max-width:760px){ .lib.cine .hx-poster::after{ background:linear-gradient(180deg, transparent 32%, rgba(0,0,0,.55) 56%, rgba(0,0,0,.96) 84%) !important } }
+
+/* Comics and picture books sit on a dark stage, so their controls are dark with white text (any reading theme) */
+#reader.k-images{ --r-bg:#0B0A0E; --r-fg:#F2F2F2; --r-muted:#A8A8A8; --r-line:rgba(255,255,255,.12); --r-soft:#1D1C21; --r-panel:#17161A; --r-bar:rgba(18,17,22,.86); --r-accent:#E50914; --r-accent-ink:#fff; color:var(--r-fg) }
+#reader.k-images #topbar, #reader.k-images #botbar{ background:rgba(20,19,24,.8) !important; border:1px solid rgba(255,255,255,.1) !important; box-shadow:0 12px 32px -10px rgba(0,0,0,.7) !important; color:#F2F2F2 !important }
+#reader.k-images #topbar *, #reader.k-images #botbar *{ color:inherit }
+#reader.k-images #topbar .ib, #reader.k-images #botbar .ib, #reader.k-images .pgmini{ color:#F2F2F2 !important }
+#reader.k-images #botbar small, #reader.k-images #botbar .muted, #reader.k-images #topbar small{ color:#A8A8A8 !important }
+#reader.k-images #magCorner, #reader.k-images #sndw{ background:rgba(20,19,24,.8) !important; color:#F2F2F2 !important; border-color:rgba(255,255,255,.12) !important }
+
 </style>
 </head>
 <body>
@@ -1828,8 +2004,9 @@ body.no-hero .lib.cine #viewHome{ padding-top:calc(96px + env(safe-area-inset-to
   </div>
   <nav class="tabbar glass" aria-label="Sections">
     <button type="button" class="tab" data-set="libTab" data-val="home" aria-pressed="true"><svg class="i" viewBox="0 0 24 24"><path d="M3.5 10.5L12 4l8.5 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-6v6H5a1.5 1.5 0 0 1-1.5-1.5z"/></svg><span>Home</span></button>
-    <label class="tab add" id="fabOpen" for="fileInput" tabindex="0" aria-label="Open books"><i><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i></label>
+    <label class="tab add" id="fabOpen" for="fileInput" tabindex="0" aria-label="Open books"><i><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i><span>Add</span></label>
     <button type="button" class="tab" data-set="libTab" data-val="library" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M4.5 4v16M8.5 4v16M12.5 5.5l3.8 14.6M19.5 20V4"/></svg><span>Library</span></button>
+    <button type="button" class="tab" data-act="appSettings" aria-label="Settings"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg><span>Settings</span></button>
   </nav>
 </main>
 
@@ -2088,6 +2265,8 @@ const S = Object.assign({}, DEF, ls.get('sp.settings', {}));
 if (S.pdfTint === false && !ls.get('sp.settings', {}).pdfColor) S.pdfColor = 'original';
 const saveSettings = debounce(() => ls.set('sp.settings', S), 200);
 if (!ls.get('sp.mig.origColors', false)) { S.pdfColor = 'original'; ls.set('sp.mig.origColors', true); try { saveSettings(); } catch (e) { /* saved later */ } }
+/* On phones the hanging lamp crowds the reading bar, so it starts put away (the lamp button brings it back) */
+if (!ls.get('sp.mig.phoneLamp', false)) { if (Math.min(screen.width || 9999, innerWidth || 9999) <= 640) S.lampShow = false; ls.set('sp.mig.phoneLamp', true); try { saveSettings(); } catch (e) { /* saved later */ } }
 if (!ls.get('sp.mig.coversShown', false)) { S.vaultBlur = false; ls.set('sp.mig.coversShown', true); try { saveSettings(); } catch (e) { /* saved later */ } }
 const stats = Object.assign({ days: {} }, ls.get('sp.stats', {}));
 const saveStats = () => {
@@ -3198,7 +3377,7 @@ function rowCard(b, rank) {
       ${p > 0 && !done ? `<i class="cv-line"><i style="width:${p}%"></i></i>` : ''}
       <button class="card-menu" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}" title="More">${ICON.more}</button>
     </div>
-    ${rank ? '' : `<div class="cv-t">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}</div>`}</div>`;
+    ${rank ? '' : `<div class="cv-meta"><div class="cv-tx"><div class="cv-t">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}</div></div><button class="cv-more" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}">${ICON.more}</button></div>`}</div>`;
 }
 const addCard = () => `<label class="cv cv-add" for="fileInput" tabindex="0"><span class="cv-addin"><i><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i><b>Add books</b><small>Comics, manga, PDF, EPUB, zip</small></span></label>`;
 function renderRows(shelf, hero) {
@@ -3229,7 +3408,7 @@ function bookCard(b) {
       <button class="card-menu" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}" title="More">${ICON.more}</button>
       <button class="card-peek" data-act="peek" data-id="${esc(b.id)}" aria-label="Preview ${esc(b.title)}" title="Preview pages">${EYE}</button>
     </div>
-    <div class="cv-t card-title">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}${p > 0 && !done ? ` · ${p}%` : ''}</div>
+    <div class="cv-meta"><div class="cv-tx"><div class="cv-t card-title">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}${p > 0 && !done ? ` · ${p}%` : ''}</div></div><button class="cv-more" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}">${ICON.more}</button></div>
   </div>`;
 }
 function spineCard(b) {
@@ -3303,19 +3482,79 @@ function renderLibrary() {
   renderShelf();
   setTimeout(() => CoverFix.run(), 600);
 }
-function closeCardMenus() { $$('.card-pop').forEach(p => p.remove()); $$('.card.menu-open, .rc.menu-open').forEach(c => c.classList.remove('menu-open')); }
+function closeCardMenus() {
+  const had = !!$('.card-pop.act-sheet');
+  $$('.card-pop').forEach(p => { if (p.classList.contains('act-sheet')) { p.classList.add('out'); setTimeout(() => p.remove(), 220); p.classList.remove('card-pop'); } else p.remove(); });
+  $$('.act-scrim').forEach(x => { x.classList.add('out'); setTimeout(() => x.remove(), 220); });
+  $$('.card.menu-open, .rc.menu-open').forEach(c => c.classList.remove('menu-open'));
+  document.body.classList.remove('sheet-open');
+  if (had && typeof OV !== 'undefined') OV.close('sheet');
+}
+/* Phones get a bottom action sheet (like a native app); larger screens get a small menu that always stays on screen */
+const useSheet = () => window.matchMedia('(max-width: 760px), (hover: none) and (pointer: coarse)').matches;
+const MI = {
+  play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+  eye: '<svg class="i" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  restart: '<svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></svg>'
+};
 function openCardMenu(id, btn) {
   const card = btn.closest('.card, .rc');
-  const was = card.classList.contains('menu-open');
+  const was = card && card.classList.contains('menu-open');
   closeCardMenus();
   if (was) return;
-  card.classList.add('menu-open');
-  const b = books.find(x => x.id === id);
-  const pop = document.createElement('div'); pop.className = 'card-pop glass';
-  pop.innerHTML = `<button data-act="openBook" data-id="${esc(id)}">${b.progress > 0 ? 'Resume reading' : 'Open'}</button><button data-act="peek" data-id="${esc(id)}">Preview pages</button>${b.progress > 0 ? '<button data-act="resetBook">Start from the beginning</button>' : ''}<button class="danger" data-act="removeBook">${ICON.trash}Remove from shelf</button>`;
+  const b = books.find(x => x.id === id); if (!b) return;
+  if (card) card.classList.add('menu-open');
+  const p = Math.round((b.progress || 0) * 100), done = b.progress >= 0.995;
+  const items = `<button data-act="openBook" data-id="${esc(id)}">${MI.play}${p > 0 && !done ? 'Resume reading' : 'Read'}</button>
+    <button data-act="peek" data-id="${esc(id)}">${MI.eye}Preview pages</button>
+    <button data-act="watchBook" data-id="${esc(id)}">${IC_WATCH}Read with video</button>
+    ${b.progress > 0 ? `<button data-act="resetBook">${MI.restart}Start from the beginning</button>` : ''}
+    <button class="danger" data-act="removeBook">${ICON.trash}Remove from shelf</button>`;
+  const pop = document.createElement('div');
   pop.dataset.id = id;
-  (card.querySelector('.bk') || card).appendChild(pop);
+  if (useSheet()) {
+    const u = coverURL(b) && !(b.private && S.vaultBlur) ? coverURL(b) : null;
+    const sub = [b.author, fmtLabel(b.format), done ? 'Finished' : p ? p + '% read' : 'Not started'].filter(Boolean).join(' · ');
+    const scrim = document.createElement('div'); scrim.className = 'act-scrim'; scrim.addEventListener('click', () => closeCardMenus());
+    pop.className = 'card-pop act-sheet'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Options for ' + b.title);
+    pop.innerHTML = `<i class="as-grab" aria-hidden="true"></i>
+      <div class="as-head"><span class="as-cv" style="--tint:${bookTint(b)}">${u ? `<img src="${u}" alt="">` : `<b>${esc((b.title || '?').trim().charAt(0).toUpperCase())}</b>`}</span><div class="as-tx"><b>${esc(b.title)}</b><small>${esc(sub)}</small></div></div>
+      <div class="as-list">${items}</div>
+      <button class="as-cancel" type="button" data-act="closeMenus">Cancel</button>`;
+    document.body.append(scrim, pop);
+    document.body.classList.add('sheet-open');
+    requestAnimationFrame(() => { scrim.classList.add('in'); pop.classList.add('in'); });
+    sheetDrag(pop);
+    if (typeof OV !== 'undefined') OV.open('sheet');
+    return;
+  }
+  pop.className = 'card-pop glass floating';
+  pop.innerHTML = items;
+  document.body.appendChild(pop);
+  pop._btn = btn; placePop(pop);
+  const r0 = btn.getBoundingClientRect(); pop._x0 = r0.left; pop._y0 = r0.top;
 }
+function placePop(pop) {
+  const r = pop._btn.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight, vw = innerWidth, vh = innerHeight;
+  let x = Math.min(vw - w - 8, Math.max(8, r.right - w)), y = r.bottom + 6;
+  if (y + h > vh - 8) y = Math.max(8, r.top - h - 6);
+  pop.style.left = x + 'px'; pop.style.top = y + 'px';
+}
+/* drag the sheet down to dismiss it */
+function sheetDrag(sh) {
+  let y0 = null, dy = 0;
+  sh.addEventListener('pointerdown', e => { if (e.target.closest('button') && !e.target.closest('.as-head')) return; y0 = e.clientY; dy = 0; sh.style.transition = 'none'; }, { passive: true });
+  sh.addEventListener('pointermove', e => { if (y0 == null) return; dy = Math.max(0, e.clientY - y0); sh.style.transform = `translateY(${dy}px)`; }, { passive: true });
+  const end = () => { if (y0 == null) return; y0 = null; sh.style.transition = ''; sh.style.transform = ''; if (dy > 70) closeCardMenus(); };
+  sh.addEventListener('pointerup', end); sh.addEventListener('pointercancel', end);
+}
+addEventListener('scroll', () => {
+  const pop = $('.card-pop.floating'); if (!pop || !pop._btn) return;
+  const r = pop._btn.getBoundingClientRect();
+  /* small nudges (snapping rows, scrolling the card into view) move the menu with its button; a real scroll closes it */
+  if (!pop._btn.isConnected || Math.abs(r.top - pop._y0) > 120 || Math.abs(r.left - pop._x0) > 120 || r.bottom < 0 || r.top > innerHeight) closeCardMenus(); else placePop(pop);
+}, true);
+addEventListener('resize', () => { if ($('.card-pop.floating')) closeCardMenus(); });
 async function removeBook(id, btn) {
   if (!btn.dataset.armed) { btn.dataset.armed = '1'; btn.classList.add('armed'); btn.innerHTML = `${ICON.trash}Tap again to remove`; return; }
   closeCardMenus(); if (Peek.on && Peek.meta && Peek.meta.id === id) Peek.close();
@@ -3452,6 +3691,7 @@ const Peek = {
     this.on = true; this.meta = meta; this.shown = 0; this.lb = -1;
     const root = $('#peek'), sheet = $('#peekSheet');
     root.hidden = false; document.body.classList.add('peek-open');
+    if (!R.open && typeof OV !== 'undefined') OV.open('peek');
     const p = Math.round((meta.progress || 0) * 100);
     const facts = [fmtLabel(meta.format), fmtBytes(meta.size), meta.added ? 'Added ' + new Date(meta.added).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''].filter(Boolean);
     sheet.innerHTML = `<button class="pk-x" data-act="peekClose" aria-label="Close preview"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -3462,8 +3702,8 @@ const Peek = {
           <h2 id="peekTitle">${esc(meta.title)}</h2>${meta.author ? `<p class="author">${esc(meta.author)}</p>` : ''}
           <div class="pk-facts" id="pkFacts">${facts.map(f => `<span>${esc(f)}</span>`).join('')}</div>
           <div class="pk-prog"><div class="bar"><i style="width:${p}%"></i></div><span>${meta.progress >= 0.995 ? 'Finished' : p ? p + '% read' : 'Not started'}${meta.readSec ? ' · ' + fmtMin(meta.readSec) + ' spent' : ''}</span></div>
-          <div class="pk-actions"><button class="btn primary lg" data-act="peekRead">${p ? 'Resume' : 'Start reading'}</button>${p ? '<button class="btn quiet lg" data-act="peekRead" data-restart="1">From the beginning</button>' : ''}<button class="btn quiet lg danger pk-rm" data-act="peekRemove" data-id="${esc(meta.id)}">${ICON.trash}Remove</button></div>
         </div>
+  <div class="pk-actions"><button class="btn primary lg" data-act="peekRead">${p ? 'Resume' : 'Start reading'}</button>${p ? '<button class="btn quiet lg" data-act="peekRead" data-restart="1">From the beginning</button>' : ''}<button class="btn quiet lg danger pk-rm" data-act="peekRemove" data-id="${esc(meta.id)}">${ICON.trash}Remove</button></div>
       </div>
       <div class="pk-body" id="pkBody"><div class="pk-loading"><i></i><i></i><i></i><span>Opening the book…</span></div></div>`;
     sheet.scrollTop = 0;
@@ -3569,6 +3809,7 @@ const Peek = {
     const d = this.doc; this.doc = null; this.meta = null;
     if (d && d !== R.doc) setTimeout(() => { try { d.cleanup && d.cleanup(); } catch (e) { /* closed */ } }, 50);
     const root = $('#peek'); root.classList.remove('in'); document.body.classList.remove('peek-open');
+    if (typeof OV !== 'undefined') OV.close('peek');
     if (quick || reduceMotion()) { root.hidden = true; $('#peekSheet').innerHTML = ''; }
     else setTimeout(() => { if (!this.on) { root.hidden = true; $('#peekSheet').innerHTML = ''; } }, 260);
   }
@@ -4389,6 +4630,7 @@ const Panel = {
     PANELS[kind].render();
     panelBody.scrollTop = 0;
     panelEl.classList.add('open'); panelEl.inert = false;
+    if (!R.open && typeof OV !== 'undefined') OV.open('panel');
     scrim.classList.add('on'); scrim.classList.toggle('clear', kind === 'type' && window.innerWidth >= 720);
     hideTool(); if (typeof SndUI !== 'undefined') SndUI.closePop();
     if (R.open) { el.reader.classList.remove('chrome-off'); Chrome.hidden = false; clearTimeout(Chrome.t); }
@@ -4401,6 +4643,7 @@ const Panel = {
     if (this.kind === 'search') { PV.searchQ = ''; PV.rendered.forEach(i => PV.markHits(i)); }
     this.kind = null; this.data = null;
     panelEl.classList.remove('open'); panelEl.inert = true; scrim.classList.remove('on');
+    if (typeof OV !== 'undefined') OV.close('panel');
     if (R.open) { Chrome.arm(); (R.kind === 'flow' ? el.flow : el.pdfview).focus({ preventScroll: true }); }
   },
   refresh() { if (!this.kind) return; const st = panelBody.scrollTop; PANELS[this.kind].render(); panelBody.scrollTop = st; }
@@ -4555,6 +4798,7 @@ const PANELS = {
       <p class="hint" style="margin:0 0 12px">A separate shelf, locked with a PIN and encrypted on this device. Its books never show on your main shelf.</p>
       <button class="btn primary" data-act="afterDark" style="margin-bottom:12px"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Open Private</button>
       <div class="tool-row"><div class="tx"><b>Show the Private button</b><span class="hint">Turn this off to keep the home screen clean. You can still get in here, by holding the Readflix logo, or with Shift and D.</span></div><span class="sw-toggle"><input type="checkbox" id="tg-vaultShow" data-act="vaultShowBtn" ${S.vaultHideBtn ? '' : 'checked'} aria-label="Show the Private button"><span></span></span></div></div>
+      <div class="sec"><h3>Add books</h3><div class="pbtns" style="justify-content:flex-start"><label class="btn quiet sm" for="fileInput">Open files</label><button class="btn quiet sm" data-act="pastePanel">Paste text</button></div></div>
       <div class="sec"><h3>Help</h3><button class="btn quiet sm" data-act="keys">Keyboard shortcuts</button></div>`;
   } },
   vault: { title: 'Private (18+)', render() {
@@ -6800,13 +7044,31 @@ function setS(k, v) {
 /* Installed app: the phone's Back gesture closes panels, then the book, instead of leaving the app. */
 const NAV = !!window.SP_PWA;
 let navPopping = false;
+/* Android back gesture / button: closes the top sheet, panel or preview first, then the book */
+let skipPop = 0;
+const OV = {
+  set: new Set(),
+  open(k) { if (!NAV) return; if (!this.set.size && !(history.state && history.state.sp)) try { history.pushState({ sp: 'ov' }, ''); } catch (e) { /* no history */ } this.set.add(k); },
+  close(k) { if (!NAV || !this.set.has(k)) return; this.set.delete(k); setTimeout(() => this.tidy(), 0); },
+  tidy() { if (!this.set.size && !R.open && history.state && history.state.sp === 'ov') { skipPop++; try { history.back(); } catch (e) { skipPop--; } } },
+  closeTop() {
+    const k = [...this.set].pop(); if (!k) return false;
+    this.set.delete(k);
+    if (k === 'sheet') closeCardMenus(); else if (k === 'panel') Panel.close(); else if (k === 'peek') Peek.close();
+    if (this.set.size) try { history.pushState({ sp: 'ov' }, ''); } catch (e) { /* no history */ }
+    return true;
+  }
+};
 window.addEventListener('popstate', () => {
-  if (!NAV || !R.open) return;
+  if (skipPop) { skipPop--; return; }
+  if (!NAV) return;
+  if (!R.open) { OV.closeTop(); return; }
   const reopen = () => { try { history.pushState({ sp: 'reader' }, ''); } catch (e) { /* no history */ } };
   if (Panel.kind) { Panel.close(); reopen(); return; }
   if (!SndUI.pop.hidden) { SndUI.closePop(); reopen(); return; }
   if (!$('#rsvp').hidden) { Rsvp.close(); reopen(); return; }
   navPopping = true; try { closeReader(); } finally { navPopping = false; }
+  setTimeout(() => OV.tidy(), 0);
 });
 async function openBook(id, at) {
   const meta = books.find(b => b.id === id); if (!meta) return;
@@ -6816,7 +7078,7 @@ async function openBook(id, at) {
   document.body.classList.add('reading'); el.library.inert = true; el.reader.hidden = false;
   el.flow.hidden = true; el.pdfview.hidden = true; el.backPill.hidden = true;
   el.loading.hidden = false; $('#loadingT').textContent = meta.title;
-  if (NAV && !(history.state && history.state.sp === 'reader')) try { history.pushState({ sp: 'reader' }, ''); } catch (e) { /* no history */ }
+  if (NAV && !(history.state && history.state.sp === 'reader')) try { if (history.state && history.state.sp === 'ov') { OV.set.clear(); history.replaceState({ sp: 'reader' }, ''); } else history.pushState({ sp: 'reader' }, ''); } catch (e) { /* no history */ }
   el.bkTitle.textContent = meta.title; el.chTitle.textContent = '';
   applyReaderSettings(); Chrome.show(); Lamp.syncBtn();
   let doc;
@@ -6890,6 +7152,7 @@ const ACT = {
     openBook(id);
   },
   cardMenu: t => openCardMenu(t.dataset.id, t),
+  closeMenus: () => closeCardMenus(),
   peek: t => { closeCardMenus(); Peek.open(t.dataset.id || (t.closest('.card-pop') && t.closest('.card-pop').dataset.id)); },
   peekClose: () => Peek.close(),
   navSearch: () => { setS('libTab', 'library'); setTimeout(() => { const i = $('#shelfSearch'); if (i) { i.closest('.search').hidden = false; i.focus(); } }, 60); },

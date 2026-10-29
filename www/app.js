@@ -59,6 +59,8 @@ const S = Object.assign({}, DEF, ls.get('sp.settings', {}));
 if (S.pdfTint === false && !ls.get('sp.settings', {}).pdfColor) S.pdfColor = 'original';
 const saveSettings = debounce(() => ls.set('sp.settings', S), 200);
 if (!ls.get('sp.mig.origColors', false)) { S.pdfColor = 'original'; ls.set('sp.mig.origColors', true); try { saveSettings(); } catch (e) { /* saved later */ } }
+/* On phones the hanging lamp crowds the reading bar, so it starts put away (the lamp button brings it back) */
+if (!ls.get('sp.mig.phoneLamp', false)) { if (Math.min(screen.width || 9999, innerWidth || 9999) <= 640) S.lampShow = false; ls.set('sp.mig.phoneLamp', true); try { saveSettings(); } catch (e) { /* saved later */ } }
 if (!ls.get('sp.mig.coversShown', false)) { S.vaultBlur = false; ls.set('sp.mig.coversShown', true); try { saveSettings(); } catch (e) { /* saved later */ } }
 const stats = Object.assign({ days: {} }, ls.get('sp.stats', {}));
 const saveStats = () => {
@@ -1169,7 +1171,7 @@ function rowCard(b, rank) {
       ${p > 0 && !done ? `<i class="cv-line"><i style="width:${p}%"></i></i>` : ''}
       <button class="card-menu" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}" title="More">${ICON.more}</button>
     </div>
-    ${rank ? '' : `<div class="cv-t">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}</div>`}</div>`;
+    ${rank ? '' : `<div class="cv-meta"><div class="cv-tx"><div class="cv-t">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}</div></div><button class="cv-more" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}">${ICON.more}</button></div>`}</div>`;
 }
 const addCard = () => `<label class="cv cv-add" for="fileInput" tabindex="0"><span class="cv-addin"><i><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i><b>Add books</b><small>Comics, manga, PDF, EPUB, zip</small></span></label>`;
 function renderRows(shelf, hero) {
@@ -1200,7 +1202,7 @@ function bookCard(b) {
       <button class="card-menu" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}" title="More">${ICON.more}</button>
       <button class="card-peek" data-act="peek" data-id="${esc(b.id)}" aria-label="Preview ${esc(b.title)}" title="Preview pages">${EYE}</button>
     </div>
-    <div class="cv-t card-title">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}${p > 0 && !done ? ` · ${p}%` : ''}</div>
+    <div class="cv-meta"><div class="cv-tx"><div class="cv-t card-title">${esc(b.title)}</div><div class="cv-s">${esc(b.author || fmtLabel(b.format))}${p > 0 && !done ? ` · ${p}%` : ''}</div></div><button class="cv-more" data-act="cardMenu" data-id="${esc(b.id)}" aria-label="More options for ${esc(b.title)}">${ICON.more}</button></div>
   </div>`;
 }
 function spineCard(b) {
@@ -1274,19 +1276,79 @@ function renderLibrary() {
   renderShelf();
   setTimeout(() => CoverFix.run(), 600);
 }
-function closeCardMenus() { $$('.card-pop').forEach(p => p.remove()); $$('.card.menu-open, .rc.menu-open').forEach(c => c.classList.remove('menu-open')); }
+function closeCardMenus() {
+  const had = !!$('.card-pop.act-sheet');
+  $$('.card-pop').forEach(p => { if (p.classList.contains('act-sheet')) { p.classList.add('out'); setTimeout(() => p.remove(), 220); p.classList.remove('card-pop'); } else p.remove(); });
+  $$('.act-scrim').forEach(x => { x.classList.add('out'); setTimeout(() => x.remove(), 220); });
+  $$('.card.menu-open, .rc.menu-open').forEach(c => c.classList.remove('menu-open'));
+  document.body.classList.remove('sheet-open');
+  if (had && typeof OV !== 'undefined') OV.close('sheet');
+}
+/* Phones get a bottom action sheet (like a native app); larger screens get a small menu that always stays on screen */
+const useSheet = () => window.matchMedia('(max-width: 760px), (hover: none) and (pointer: coarse)').matches;
+const MI = {
+  play: '<svg class="i" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg>',
+  eye: '<svg class="i" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  restart: '<svg class="i" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4.5h4.5"/></svg>'
+};
 function openCardMenu(id, btn) {
   const card = btn.closest('.card, .rc');
-  const was = card.classList.contains('menu-open');
+  const was = card && card.classList.contains('menu-open');
   closeCardMenus();
   if (was) return;
-  card.classList.add('menu-open');
-  const b = books.find(x => x.id === id);
-  const pop = document.createElement('div'); pop.className = 'card-pop glass';
-  pop.innerHTML = `<button data-act="openBook" data-id="${esc(id)}">${b.progress > 0 ? 'Resume reading' : 'Open'}</button><button data-act="peek" data-id="${esc(id)}">Preview pages</button>${b.progress > 0 ? '<button data-act="resetBook">Start from the beginning</button>' : ''}<button class="danger" data-act="removeBook">${ICON.trash}Remove from shelf</button>`;
+  const b = books.find(x => x.id === id); if (!b) return;
+  if (card) card.classList.add('menu-open');
+  const p = Math.round((b.progress || 0) * 100), done = b.progress >= 0.995;
+  const items = `<button data-act="openBook" data-id="${esc(id)}">${MI.play}${p > 0 && !done ? 'Resume reading' : 'Read'}</button>
+    <button data-act="peek" data-id="${esc(id)}">${MI.eye}Preview pages</button>
+    <button data-act="watchBook" data-id="${esc(id)}">${IC_WATCH}Read with video</button>
+    ${b.progress > 0 ? `<button data-act="resetBook">${MI.restart}Start from the beginning</button>` : ''}
+    <button class="danger" data-act="removeBook">${ICON.trash}Remove from shelf</button>`;
+  const pop = document.createElement('div');
   pop.dataset.id = id;
-  (card.querySelector('.bk') || card).appendChild(pop);
+  if (useSheet()) {
+    const u = coverURL(b) && !(b.private && S.vaultBlur) ? coverURL(b) : null;
+    const sub = [b.author, fmtLabel(b.format), done ? 'Finished' : p ? p + '% read' : 'Not started'].filter(Boolean).join(' · ');
+    const scrim = document.createElement('div'); scrim.className = 'act-scrim'; scrim.addEventListener('click', () => closeCardMenus());
+    pop.className = 'card-pop act-sheet'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Options for ' + b.title);
+    pop.innerHTML = `<i class="as-grab" aria-hidden="true"></i>
+      <div class="as-head"><span class="as-cv" style="--tint:${bookTint(b)}">${u ? `<img src="${u}" alt="">` : `<b>${esc((b.title || '?').trim().charAt(0).toUpperCase())}</b>`}</span><div class="as-tx"><b>${esc(b.title)}</b><small>${esc(sub)}</small></div></div>
+      <div class="as-list">${items}</div>
+      <button class="as-cancel" type="button" data-act="closeMenus">Cancel</button>`;
+    document.body.append(scrim, pop);
+    document.body.classList.add('sheet-open');
+    requestAnimationFrame(() => { scrim.classList.add('in'); pop.classList.add('in'); });
+    sheetDrag(pop);
+    if (typeof OV !== 'undefined') OV.open('sheet');
+    return;
+  }
+  pop.className = 'card-pop glass floating';
+  pop.innerHTML = items;
+  document.body.appendChild(pop);
+  pop._btn = btn; placePop(pop);
+  const r0 = btn.getBoundingClientRect(); pop._x0 = r0.left; pop._y0 = r0.top;
 }
+function placePop(pop) {
+  const r = pop._btn.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight, vw = innerWidth, vh = innerHeight;
+  let x = Math.min(vw - w - 8, Math.max(8, r.right - w)), y = r.bottom + 6;
+  if (y + h > vh - 8) y = Math.max(8, r.top - h - 6);
+  pop.style.left = x + 'px'; pop.style.top = y + 'px';
+}
+/* drag the sheet down to dismiss it */
+function sheetDrag(sh) {
+  let y0 = null, dy = 0;
+  sh.addEventListener('pointerdown', e => { if (e.target.closest('button') && !e.target.closest('.as-head')) return; y0 = e.clientY; dy = 0; sh.style.transition = 'none'; }, { passive: true });
+  sh.addEventListener('pointermove', e => { if (y0 == null) return; dy = Math.max(0, e.clientY - y0); sh.style.transform = `translateY(${dy}px)`; }, { passive: true });
+  const end = () => { if (y0 == null) return; y0 = null; sh.style.transition = ''; sh.style.transform = ''; if (dy > 70) closeCardMenus(); };
+  sh.addEventListener('pointerup', end); sh.addEventListener('pointercancel', end);
+}
+addEventListener('scroll', () => {
+  const pop = $('.card-pop.floating'); if (!pop || !pop._btn) return;
+  const r = pop._btn.getBoundingClientRect();
+  /* small nudges (snapping rows, scrolling the card into view) move the menu with its button; a real scroll closes it */
+  if (!pop._btn.isConnected || Math.abs(r.top - pop._y0) > 120 || Math.abs(r.left - pop._x0) > 120 || r.bottom < 0 || r.top > innerHeight) closeCardMenus(); else placePop(pop);
+}, true);
+addEventListener('resize', () => { if ($('.card-pop.floating')) closeCardMenus(); });
 async function removeBook(id, btn) {
   if (!btn.dataset.armed) { btn.dataset.armed = '1'; btn.classList.add('armed'); btn.innerHTML = `${ICON.trash}Tap again to remove`; return; }
   closeCardMenus(); if (Peek.on && Peek.meta && Peek.meta.id === id) Peek.close();
@@ -1423,6 +1485,7 @@ const Peek = {
     this.on = true; this.meta = meta; this.shown = 0; this.lb = -1;
     const root = $('#peek'), sheet = $('#peekSheet');
     root.hidden = false; document.body.classList.add('peek-open');
+    if (!R.open && typeof OV !== 'undefined') OV.open('peek');
     const p = Math.round((meta.progress || 0) * 100);
     const facts = [fmtLabel(meta.format), fmtBytes(meta.size), meta.added ? 'Added ' + new Date(meta.added).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' }) : ''].filter(Boolean);
     sheet.innerHTML = `<button class="pk-x" data-act="peekClose" aria-label="Close preview"><svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -1433,8 +1496,8 @@ const Peek = {
           <h2 id="peekTitle">${esc(meta.title)}</h2>${meta.author ? `<p class="author">${esc(meta.author)}</p>` : ''}
           <div class="pk-facts" id="pkFacts">${facts.map(f => `<span>${esc(f)}</span>`).join('')}</div>
           <div class="pk-prog"><div class="bar"><i style="width:${p}%"></i></div><span>${meta.progress >= 0.995 ? 'Finished' : p ? p + '% read' : 'Not started'}${meta.readSec ? ' · ' + fmtMin(meta.readSec) + ' spent' : ''}</span></div>
-          <div class="pk-actions"><button class="btn primary lg" data-act="peekRead">${p ? 'Resume' : 'Start reading'}</button>${p ? '<button class="btn quiet lg" data-act="peekRead" data-restart="1">From the beginning</button>' : ''}<button class="btn quiet lg danger pk-rm" data-act="peekRemove" data-id="${esc(meta.id)}">${ICON.trash}Remove</button></div>
         </div>
+  <div class="pk-actions"><button class="btn primary lg" data-act="peekRead">${p ? 'Resume' : 'Start reading'}</button>${p ? '<button class="btn quiet lg" data-act="peekRead" data-restart="1">From the beginning</button>' : ''}<button class="btn quiet lg danger pk-rm" data-act="peekRemove" data-id="${esc(meta.id)}">${ICON.trash}Remove</button></div>
       </div>
       <div class="pk-body" id="pkBody"><div class="pk-loading"><i></i><i></i><i></i><span>Opening the book…</span></div></div>`;
     sheet.scrollTop = 0;
@@ -1540,6 +1603,7 @@ const Peek = {
     const d = this.doc; this.doc = null; this.meta = null;
     if (d && d !== R.doc) setTimeout(() => { try { d.cleanup && d.cleanup(); } catch (e) { /* closed */ } }, 50);
     const root = $('#peek'); root.classList.remove('in'); document.body.classList.remove('peek-open');
+    if (typeof OV !== 'undefined') OV.close('peek');
     if (quick || reduceMotion()) { root.hidden = true; $('#peekSheet').innerHTML = ''; }
     else setTimeout(() => { if (!this.on) { root.hidden = true; $('#peekSheet').innerHTML = ''; } }, 260);
   }
@@ -2360,6 +2424,7 @@ const Panel = {
     PANELS[kind].render();
     panelBody.scrollTop = 0;
     panelEl.classList.add('open'); panelEl.inert = false;
+    if (!R.open && typeof OV !== 'undefined') OV.open('panel');
     scrim.classList.add('on'); scrim.classList.toggle('clear', kind === 'type' && window.innerWidth >= 720);
     hideTool(); if (typeof SndUI !== 'undefined') SndUI.closePop();
     if (R.open) { el.reader.classList.remove('chrome-off'); Chrome.hidden = false; clearTimeout(Chrome.t); }
@@ -2372,6 +2437,7 @@ const Panel = {
     if (this.kind === 'search') { PV.searchQ = ''; PV.rendered.forEach(i => PV.markHits(i)); }
     this.kind = null; this.data = null;
     panelEl.classList.remove('open'); panelEl.inert = true; scrim.classList.remove('on');
+    if (typeof OV !== 'undefined') OV.close('panel');
     if (R.open) { Chrome.arm(); (R.kind === 'flow' ? el.flow : el.pdfview).focus({ preventScroll: true }); }
   },
   refresh() { if (!this.kind) return; const st = panelBody.scrollTop; PANELS[this.kind].render(); panelBody.scrollTop = st; }
@@ -2526,6 +2592,7 @@ const PANELS = {
       <p class="hint" style="margin:0 0 12px">A separate shelf, locked with a PIN and encrypted on this device. Its books never show on your main shelf.</p>
       <button class="btn primary" data-act="afterDark" style="margin-bottom:12px"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Open Private</button>
       <div class="tool-row"><div class="tx"><b>Show the Private button</b><span class="hint">Turn this off to keep the home screen clean. You can still get in here, by holding the Readflix logo, or with Shift and D.</span></div><span class="sw-toggle"><input type="checkbox" id="tg-vaultShow" data-act="vaultShowBtn" ${S.vaultHideBtn ? '' : 'checked'} aria-label="Show the Private button"><span></span></span></div></div>
+      <div class="sec"><h3>Add books</h3><div class="pbtns" style="justify-content:flex-start"><label class="btn quiet sm" for="fileInput">Open files</label><button class="btn quiet sm" data-act="pastePanel">Paste text</button></div></div>
       <div class="sec"><h3>Help</h3><button class="btn quiet sm" data-act="keys">Keyboard shortcuts</button></div>`;
   } },
   vault: { title: 'Private (18+)', render() {
@@ -4771,13 +4838,31 @@ function setS(k, v) {
 /* Installed app: the phone's Back gesture closes panels, then the book, instead of leaving the app. */
 const NAV = !!window.SP_PWA;
 let navPopping = false;
+/* Android back gesture / button: closes the top sheet, panel or preview first, then the book */
+let skipPop = 0;
+const OV = {
+  set: new Set(),
+  open(k) { if (!NAV) return; if (!this.set.size && !(history.state && history.state.sp)) try { history.pushState({ sp: 'ov' }, ''); } catch (e) { /* no history */ } this.set.add(k); },
+  close(k) { if (!NAV || !this.set.has(k)) return; this.set.delete(k); setTimeout(() => this.tidy(), 0); },
+  tidy() { if (!this.set.size && !R.open && history.state && history.state.sp === 'ov') { skipPop++; try { history.back(); } catch (e) { skipPop--; } } },
+  closeTop() {
+    const k = [...this.set].pop(); if (!k) return false;
+    this.set.delete(k);
+    if (k === 'sheet') closeCardMenus(); else if (k === 'panel') Panel.close(); else if (k === 'peek') Peek.close();
+    if (this.set.size) try { history.pushState({ sp: 'ov' }, ''); } catch (e) { /* no history */ }
+    return true;
+  }
+};
 window.addEventListener('popstate', () => {
-  if (!NAV || !R.open) return;
+  if (skipPop) { skipPop--; return; }
+  if (!NAV) return;
+  if (!R.open) { OV.closeTop(); return; }
   const reopen = () => { try { history.pushState({ sp: 'reader' }, ''); } catch (e) { /* no history */ } };
   if (Panel.kind) { Panel.close(); reopen(); return; }
   if (!SndUI.pop.hidden) { SndUI.closePop(); reopen(); return; }
   if (!$('#rsvp').hidden) { Rsvp.close(); reopen(); return; }
   navPopping = true; try { closeReader(); } finally { navPopping = false; }
+  setTimeout(() => OV.tidy(), 0);
 });
 async function openBook(id, at) {
   const meta = books.find(b => b.id === id); if (!meta) return;
@@ -4787,7 +4872,7 @@ async function openBook(id, at) {
   document.body.classList.add('reading'); el.library.inert = true; el.reader.hidden = false;
   el.flow.hidden = true; el.pdfview.hidden = true; el.backPill.hidden = true;
   el.loading.hidden = false; $('#loadingT').textContent = meta.title;
-  if (NAV && !(history.state && history.state.sp === 'reader')) try { history.pushState({ sp: 'reader' }, ''); } catch (e) { /* no history */ }
+  if (NAV && !(history.state && history.state.sp === 'reader')) try { if (history.state && history.state.sp === 'ov') { OV.set.clear(); history.replaceState({ sp: 'reader' }, ''); } else history.pushState({ sp: 'reader' }, ''); } catch (e) { /* no history */ }
   el.bkTitle.textContent = meta.title; el.chTitle.textContent = '';
   applyReaderSettings(); Chrome.show(); Lamp.syncBtn();
   let doc;
@@ -4861,6 +4946,7 @@ const ACT = {
     openBook(id);
   },
   cardMenu: t => openCardMenu(t.dataset.id, t),
+  closeMenus: () => closeCardMenus(),
   peek: t => { closeCardMenus(); Peek.open(t.dataset.id || (t.closest('.card-pop') && t.closest('.card-pop').dataset.id)); },
   peekClose: () => Peek.close(),
   navSearch: () => { setS('libTab', 'library'); setTimeout(() => { const i = $('#shelfSearch'); if (i) { i.closest('.search').hidden = false; i.focus(); } }, 60); },

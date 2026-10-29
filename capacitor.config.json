@@ -3,5 +3,15 @@
   "appName": "Readflix",
   "webDir": "www",
   "backgroundColor": "#141414",
-  "android": { "backgroundColor": "#141414", "allowMixedContent": false }
+  "android": {
+    "backgroundColor": "#141414",
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "initialViewportFitValueHint": "cover",
+      "style": "DARK"
+    }
+  }
 }
