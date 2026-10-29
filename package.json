@@ -35,8 +35,8 @@
       { "ext": ["cbz"], "name": "Comic book", "role": "Viewer" },
       { "ext": ["fb2"], "name": "FictionBook", "role": "Viewer" }
     ],
-    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }], "icon": "build/icon.png", "artifactName": "Readflix-${version}-${target}.${ext}" },
-    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "Readflix" },
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }, { "target": "portable", "arch": ["x64"] }], "icon": "build/icon.png" },
+    "nsis": { "oneClick": false, "perMachine": false, "allowToChangeInstallationDirectory": true, "createDesktopShortcut": true, "shortcutName": "Readflix", "artifactName": "Readflix-${version}-Setup.exe" },
     "portable": { "artifactName": "Readflix-${version}-portable.exe" },
     "mac": { "target": "dmg", "category": "public.app-category.books", "icon": "build/icon.png" },
     "linux": { "target": "AppImage", "category": "Office", "icon": "build/icon.png" }
